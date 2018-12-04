@@ -30,8 +30,22 @@ ToDo List
 2) Rewrite multi-threading with Scrappy pool
 3) Add W3C validation for pages
 
+
 Analogs
 -------
 
 You can also try Xenu. It is doing the same staff but it can't use
 authentication for web sites and perform W3C validation.
+
+
+TODO:
+-----
+Что еще добавить:
+
+Браузер и JS
+
+Фаззинг
+
+HTML отчет с группировкой по типу ошибки
+
+Определение уникальных паттернов урлов и только для них проверка JS  ошибок и прочего - для случая когда таких урлов больше 1к  (отрезаем все параметры и берем только уникальные урлы из каждого паттерна)
