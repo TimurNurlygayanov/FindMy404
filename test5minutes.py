@@ -3,7 +3,7 @@
 # This script allows to check any website for most popular errors:
 #  1) 404 / 500 error pages (done by full crawling of all links)
 #  2) JS errors on pages (not implemented yet)
-#  3) GET parameters validation (will be done by fuzzing checks)
+#  3) GET parameters validation and CSS attacks (will be done by fuzzing checks)
 #
 # Author: Timur Nurlygayanov
 #
@@ -39,7 +39,7 @@ headers = {'User-Agent': str(ua.chrome)}
 
 
 def get_conf_param(section, parameter, default_value):
-    """ This functions reads parameters from the configuration file. """
+    """ This function reads parameters from the configuration file. """
     result = config.get(section, parameter)
     return result or default_value
 
