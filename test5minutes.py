@@ -32,7 +32,7 @@ config.read('config5.conf')
 
 FOUND_ISSUES = dict()
 IGNORE_LIST = []
-LINKS = set()
+LINKS = []  # set()
 TOTAL_LIMIT = 100
 ua = UserAgent()
 headers = {'User-Agent': str(ua.chrome)}
@@ -51,8 +51,9 @@ async def fetch(url, session):
     """
 
     try:
-        async with session.get(url, headers=headers) as response:
-            return await response.read(), response.status, response.url
+        url_ = requote_uri(url['link'])
+        async with session.get(url_, headers=headers) as response:
+            return await response.read(), response.status, response.url, url['parent']
     except Exception as e:
         return url, e   # just send an empty data in case of any errors
 
@@ -73,7 +74,6 @@ async def run(urls):
     # per each request:
     async with ClientSession(connector=TCPConnector(ssl=False)) as session:
         for url in urls:
-            url = requote_uri(url)
             async_task = asyncio.ensure_future(bound_fetch(sem, url, session))
             async_tasks.append(async_task)
 
@@ -92,9 +92,9 @@ def parse_all_links(url):
 
         # Split page text to identify all links
         # (this is the faster way to get all the links):
-        links = res.text.split('http')
+        links_ = res.text.split('http')
 
-        for link in links:
+        for link in links_:
             if link.startswith('s://') or link.startswith('://'):
                 try:
                     # Get clear link:
@@ -114,8 +114,14 @@ def parse_all_links(url):
                             not clear_link.endswith('='):
                         # If the link is good - add this link to
                         # the list of all good links:
-                        LINKS.add('http' + clear_link)
-                except:
+
+                        link_new = {'link': 'http' + clear_link,
+                                    'parent': url}
+                        if link_new not in LINKS:
+                            LINKS.append({'link': 'http' + clear_link,
+                                          'parent': url})
+                except Exception as e:
+                    print(e)
                     pass  # Just ignore any errors
     except:
         print(colored('Failed to parse:', 'yellow'), url)
@@ -197,7 +203,7 @@ TOTAL_LIMIT = int(get_conf_param('DEFAULT', 'limit', 100))
 start_time = int(round(time.time()))
 
 # Start to parse all the links from the first page:
-LINKS.add(start_url)
+LINKS.append({'link': start_url, 'parent': start_url})
 parse_all_links(start_url)
 
 # Parse all links from all crawled pages:
@@ -206,8 +212,8 @@ for k, link in enumerate(total):
     print('Collecting URLs... {0:0.0f} %'.format(100.0 * k / len(total)),
           end='\r')
 
-    if main_domain in link:
-        parse_all_links(link)
+    if main_domain in link['link']:
+        parse_all_links(link['link'])
 
 print("Found {0} links".format(len(LINKS)) + " "*20)
 
@@ -244,9 +250,9 @@ print('Results:', len(crawler_results))
 
 # Print all found issues to console:
 for r in crawler_results:
-    if len(r) == 3:
+    if len(r) == 4:
         if int(r[1]) != 200:
-            print(colored('NOT OK', 'red'), r[1], r[2])
+            print(colored('NOT OK', 'red'), r[1], r[2], r[3])
 
             add_to_report(r[1], r[2])
     else:
