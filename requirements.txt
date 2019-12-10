@@ -3,3 +3,4 @@ grab
 progress
 pyvirtualdisplay
 selenium
+aiohttp

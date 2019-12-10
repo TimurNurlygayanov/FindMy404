@@ -3,7 +3,6 @@
 # This script allows to check any website for most popular errors:
 #  1) 404 / 500 error pages (done by full crawling of all links)
 #  2) JS errors on pages (not implemented yet)
-#  3) GET parameters validation and CSS attacks (will be done by fuzzing checks)
 #
 # Author: Timur Nurlygayanov
 #
